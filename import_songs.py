@@ -6,7 +6,7 @@ import time
 from pymongo import MongoClient
 
 MONGODB_PORT = 27017
-SONGS_PATH = "C:\Million Songs Data\MillionSongSubset\data"
+SONGS_PATH = ""
 SONGS_BATCH_SIZE = 1000
 
 def get_song_from_file(song_file):
@@ -32,7 +32,7 @@ def get_song_from_file(song_file):
     return song
 
 
-def export_all_songs(basedir, db):
+def import_all_songs(basedir, db):
     start = time.time()
     songs_batch = []
 
@@ -55,5 +55,5 @@ def export_all_songs(basedir, db):
 
 client = MongoClient('localhost', MONGODB_PORT)
 db = client.local
-export_all_songs(SONGS_PATH, db)
+import_all_songs(SONGS_PATH, db)
 client.close()
