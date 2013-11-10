@@ -1,5 +1,5 @@
 from pymongo import MongoClient
-import time
+from measurements import invoke_measurable_task
 
 MONGODB_PORT = 27017
 BATCH_SIZE = 2500
@@ -10,13 +10,6 @@ TEST_TRIPLETS_FILE_PATH = 'resources/private/kaggle_visible_evaluation_triplets.
 
 users_map = {}
 songs_map = {}
-
-
-def invoke_measurable_operation(operation, message_format):
-    start = time.time()
-    operation()
-    stop = time.time()
-    print message_format, stop - start
 
 
 def load_kaggle_users_mapping():
@@ -31,7 +24,7 @@ def load_kaggle_songs_mapping():
             parts = line.strip().split()
             song_id = parts[0]
             song_index = parts[1]
-            songs_map[song_id] = song_index
+            songs_map[song_id] = int(song_index)
 
 
 def import_triplets_from_file(filename, db_collection):
@@ -53,18 +46,18 @@ def get_triplet_from_fileline(line):
     return {
         'user_index': users_map[parts[0]],
         'song_index': songs_map[parts[1]],
-        'play_count': parts[2]
+        'play_count': int(parts[2])
     }
 
 
-invoke_measurable_operation(load_kaggle_users_mapping, 'Kaggle users mapping loaded in:')
-invoke_measurable_operation(load_kaggle_songs_mapping, 'Kaggle songs mapping loaded in:')
+invoke_measurable_task(load_kaggle_users_mapping, 'Load Kaggle users mapping')
+invoke_measurable_task(load_kaggle_songs_mapping, 'Load Kaggle songs mapping')
 
 with MongoClient('localhost', MONGODB_PORT) as client:
     db = client.local
-    invoke_measurable_operation(
-        lambda: import_triplets_from_file(TRAIN_TRIPLETS_FILE_PATH, db.train_triplets),
-        'Train triplets imported in:')
-    invoke_measurable_operation(
+    invoke_measurable_task(
+        lambda: import_triplets_from_file(TRAIN_TRIPLETS_FILE_PATH, db.test_triplets),
+        'Import train triplets')
+    invoke_measurable_task(
         lambda: import_triplets_from_file(TEST_TRIPLETS_FILE_PATH, db.test_triplets),
-        'Test triplets imported in:')
+        'Import test triplets')
