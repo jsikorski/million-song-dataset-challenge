@@ -5,7 +5,7 @@ MONGODB_PORT = 27017
 
 
 def hundred_songs():
-    songs = db.play_count_by_song.find().sort('value', DESCENDING).limit(100)
+    songs = db.play_count_by_song_t.find().sort('value', DESCENDING).limit(100)
     db.most_popular.insert(songs, w=0,
                            j=False, fsync=False,
                            continue_on_error=True)
