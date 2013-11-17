@@ -13,7 +13,7 @@ def one_by_one():
         condition = { 'song_index': songs[0][i]['_id'] }
         initial = { 'count': 0, 'sum': 0 }
         reduce = 'function(doc, out) {  }'
-        songsGroup = db.train_triplets.group(key, condition, initial, reduce)
+        songsGroup = db.triplets.group(key, condition, initial, reduce)
 
         print 'Groupby song: ',songs[0][i]
         print 'Groupby song _id: ',songs[0][i]['_id']

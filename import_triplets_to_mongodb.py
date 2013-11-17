@@ -72,8 +72,8 @@ invoke_measurable_task(load_kaggle_songs_mapping, 'Load Kaggle songs mapping')
 with MongoClient('localhost', MONGODB_PORT) as client:
     db = client.local
     invoke_measurable_task(
-        lambda: import_triplets_from_file(TRAIN_TRIPLETS_FILE_PATH, db.train_triplets),
+        lambda: import_triplets_from_file(TRAIN_TRIPLETS_FILE_PATH, db.triplets),
         'Import train triplets')
     invoke_measurable_task(
-        lambda: import_triplets_from_file(TEST_TRIPLETS_FILE_PATH, db.test_triplets),
+        lambda: import_triplets_from_file(TEST_TRIPLETS_FILE_PATH, db.triplets),
         'Import test triplets')

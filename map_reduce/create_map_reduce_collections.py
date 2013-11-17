@@ -36,12 +36,8 @@ for directory in filter(should_be_created, os.listdir('.')):
         db = client.local
 
         invoke_measurable_task(
-            lambda: db.train_triplets.map_reduce(map, reduce, 'train_' + directory),
-            "Create map reduce collection %s for train data" % directory)
-
-        invoke_measurable_task(
-            lambda: db.test_triplets.map_reduce(map, reduce, 'test_' + directory, finalize=finalize),
-            "Create map reduce collection %s for test data" % directory)
+            lambda: db.triplets.map_reduce(map, reduce, directory, finalize=finalize),
+            "Create map reduce collection %s" % directory)
 
     with open(CREATED_COLLECTIONS_FILE_PATH, 'a') as file:
         file.write('%s\n' % directory)
