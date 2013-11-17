@@ -1,14 +1,8 @@
-function(songId, plays) {
-    var playsMap = {}
-    for (var i = 0; i < plays.length; i++) {
-        var play = plays[i];
-        var songIndex = play.song_index;
+function(userIndex, values) {
+    plays = [];
+    values.forEach(function(value) {
+        Array.prototype.push.apply(plays, value.plays);
+    });
 
-        if (playsMap[songIndex] == undefined) {
-            playsMap[songIndex] = 0;
-        }
-
-        playsMap[songIndex] += play.play_count;
-    }
-    return playsMap;
+    return { plays: plays };
 }

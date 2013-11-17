@@ -1,5 +1,5 @@
 from pymongo import *
-from measurements import invoke_measurable_task
+from utils.measurements import invoke_measurable_task
 
 MONGODB_PORT = 27017
 

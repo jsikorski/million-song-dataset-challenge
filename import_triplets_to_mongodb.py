@@ -1,5 +1,6 @@
 from pymongo import MongoClient
-from measurements import invoke_measurable_task
+from utils.database_inserter import insert_batch
+from utils.measurements import invoke_measurable_task
 
 MONGODB_PORT = 27017
 BATCH_SIZE = 2500
@@ -13,6 +14,7 @@ songs_map = {}
 
 # Python closure hack
 last_index = [0]
+
 
 def load_kaggle_users_mapping():
     with open(KAGGLE_USERS_MAPPING_FILE_PATH) as kaggle_users:
@@ -38,20 +40,24 @@ def import_triplets_from_file(filename, db_collection):
             triplets_batch.append(triplet)
 
             if len(triplets_batch) % BATCH_SIZE == 0:
-                db_collection.insert(triplets_batch, w=0,
-                                     j=False, fsync=False,
-                                     continue_on_error=True)
+                insert_batch(triplets_batch, db_collection)
                 triplets_batch = []
+
+        if len(triplets_batch) > 0:
+            insert_batch(triplets_batch, db_collection)
 
 
 def get_triplet_from_fileline(line):
     parts = line.strip().split()
 
-    if parts[0] in users_map:
+    user_id = parts[0]
+
+    if user_id in users_map:
         user_index = users_map[parts[0]]
     else:
         last_index[0] += 1
         user_index = last_index[0]
+        users_map[user_id] = user_index
 
     return {
         'user_index': user_index,
