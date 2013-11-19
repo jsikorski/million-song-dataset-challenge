@@ -19,17 +19,17 @@ def one_by_one(most_popular_songs, plays_by_user_binary_t):
 def pairs(most_popular_songs, plays_by_user_binary_t):
     for song in most_popular_songs:
         for second_song in most_popular_songs:
-            song_index = str(int(song['_id']))
-            fixed_song_index = '$value.' + song_index
+            song_index = int(song['_id'])
+            fixed_song_index = '$value.' + str(song_index)
 
-            second_song_index = str(int(second_song['_id']))
-            fixed_second_song_index = '$value.' + second_song_index
+            second_song_index = int(second_song['_id'])
+            fixed_second_song_index = '$value.' + str(second_song_index)
 
-            songs_group = plays_by_user_binary_t.aggregate([
-                {'$group':{'_id': fixed_song_index, 'res': {'$addToSet': fixed_song_index}}},
-                {'$group':{'_id': fixed_second_song_index, 'res': {'$addToSet': fixed_second_song_index}}}
-            ])
-
+            if song_index < second_song_index:
+                songs_group = plays_by_user_binary_t.aggregate([
+                    {'$group':{'_id': fixed_song_index, 'res': {'$addToSet': fixed_song_index}}},
+                    {'$group':{'_id': fixed_second_song_index, 'res': {'$addToSet': fixed_second_song_index}}}
+                ])
 
 def all_at_once(most_popular_songs, plays_by_user_binary_t):
     pipeline = [20]
@@ -39,6 +39,7 @@ def all_at_once(most_popular_songs, plays_by_user_binary_t):
         fixed_song_index = '$value.' + song_index
         pipeline[0] = ({'$group':{'_id': fixed_song_index, 'res': {'$addToSet': fixed_song_index}}})
 
+    print 'Query created'
     songs_group = plays_by_user_binary_t.aggregate(pipeline)
 
 
