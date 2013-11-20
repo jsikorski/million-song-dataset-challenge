@@ -6,42 +6,41 @@ NUMBER_OF_MOST_POPULAR_SONGS = 100
 NUMBER_OF_SONGS_AT_ONE = 20
 
 
-def one_by_one(most_popular_songs, plays_by_user_binary_t):
-    for song in most_popular_songs:
+def one_by_one(most_popular, plays_by_user_binary_t):
+    for song in most_popular:
         song_index = str(int(song['_id']))
         fixed_song_index = '$value.' + song_index
 
         songs_group = plays_by_user_binary_t.aggregate([
-            {'$group':{'_id': fixed_song_index, 'res': {'$addToSet': fixed_song_index}}}
+            {'$group': {'_id': fixed_song_index, 'res': {'$addToSet': fixed_song_index}}}
         ])
 
 
-def pairs(most_popular_songs, plays_by_user_binary_t):
-    for song in most_popular_songs:
-        for second_song in most_popular_songs:
+def pairs(most_popular, plays_by_user_binary_t):
+    for song in most_popular:
+        for second_song in most_popular:
             song_index = int(song['_id'])
-            fixed_song_index = '$value.' + str(song_index)
-
             second_song_index = int(second_song['_id'])
-            fixed_second_song_index = '$value.' + str(second_song_index)
 
             if song_index < second_song_index:
+                fixed_song_index = '$value.' + str(song_index)
+                fixed_second_song_index = '$value.' + str(second_song_index)
+
                 songs_group = plays_by_user_binary_t.aggregate([
-                    {'$group':{'_id': fixed_song_index, 'res': {'$addToSet': fixed_song_index}}},
-                    {'$group':{'_id': fixed_second_song_index, 'res': {'$addToSet': fixed_second_song_index}}}
+                    {'$group': {'_id': fixed_song_index}},
+                    {'$group': {'_id': fixed_second_song_index}}
                 ])
 
-def all_at_once(most_popular_songs, plays_by_user_binary_t):
+def all_at_once(most_popular, plays_by_user_binary_t):
     pipeline = [20]
 
-    for num in range(0,20):
-        song_index = str(int(most_popular_songs[num]['_id']))
+    for num in range(0, 20):
+        song_index = str(int(most_popular[num]['_id']))
         fixed_song_index = '$value.' + song_index
-        pipeline[0] = ({'$group':{'_id': fixed_song_index, 'res': {'$addToSet': fixed_song_index}}})
+        pipeline[0] = ({'$group': {'_id': fixed_song_index, 'res': {'$addToSet': fixed_song_index}}})
 
     print 'Query created'
     songs_group = plays_by_user_binary_t.aggregate(pipeline)
-
 
 with MongoClient('localhost', MONGODB_PORT) as client:
     db = client.local
