@@ -11,10 +11,10 @@ def create_plays_by_user_binary(plays_by_user, most_popular_songs, target_collec
     plays_batch = []
 
     for user_play_map in plays_by_user.find():
-        entry = {'_id': user_play_map['_id'], 'value': {}}
+        entry = {'_id': user_play_map['_id']}
         for song in most_popular_songs:
             song_index = str(int(song['_id']))
-            entry['value'][song_index] = song_index in user_play_map['value']
+            entry[song_index] = song_index in user_play_map['value']
 
         plays_batch.append(entry)
 
