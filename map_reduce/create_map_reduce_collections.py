@@ -30,15 +30,22 @@ for directory in filter(should_be_created, os.listdir('.')):
     else:
         finalize = None
 
+    collection_path = '%s/source_collection.txt' % directory
+    if exists(collection_path):
+        with open(collection_path) as collection_file:
+            source_collection_name = collection_file.read()
+    else:
+        source_collection_name = 'triplets'
+
     with MongoClient('localhost', MONGODB_PORT) as client:
         db = client.local
 
         invoke_measurable_task(
-            lambda: db.triplets_t.map_reduce(map, reduce, directory + '_t', finalize=finalize),
+            lambda: db[source_collection_name + '_t'].map_reduce(map, reduce, directory + '_t', finalize=finalize),
             "Create map reduce collection %s for train set" % directory)
 
         invoke_measurable_task(
-            lambda: db.triplets_v.map_reduce(map, reduce, directory + '_v', finalize=finalize),
+            lambda: db[source_collection_name + '_v'].map_reduce(map, reduce, directory + '_v', finalize=finalize),
             "Create map reduce collection %s for validation set" % directory)
 
     with open(CREATED_COLLECTIONS_FILE_PATH, 'a') as file:

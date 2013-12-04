@@ -10,17 +10,14 @@ BATCH_SIZE = 2500
 def create_plays_by_user_binary(plays_by_user, most_popular_songs, target_collection):
     plays_batch = []
 
-    most_popular_song_ids = map(lambda s: int(s['_id']), most_popular_songs)
-
     for user_play_map in plays_by_user.find():
-        entry = {'_id': user_play_map['_id'], 'value': {}}
+        entry = {'_id': user_play_map['_id'], 'value': []}
+        for song in most_popular_songs:
+            song_index = str(int(song['_id']))
+            if song_index in user_play_map['value']:
+                entry['value'].append(int(song_index))
 
-        for song_id, play_count in user_play_map['value'].iteritems():
-            song_index = int(song_id)
-            if song_index in most_popular_song_ids:
-                entry['value'][song_id] = play_count
-
-        if len(entry['value'].keys()) > 1:
+        if len(entry['value']) > 1:
             plays_batch.append(entry)
 
         if len(plays_batch) > 0 and len(plays_batch) % BATCH_SIZE == 0:
@@ -47,9 +44,9 @@ with MongoClient('localhost', MONGODB_PORT) as client:
     most_popular_songs = most_popular_songs[0]
 
     invoke_measurable_task(
-        lambda: create_plays_by_user_binary(db.plays_by_user_t, most_popular_songs, db.plays_by_user_filtered_t),
-        "Create plays_by_user_filtered collection for train set")
+        lambda: create_plays_by_user_binary(db.plays_by_user_t, most_popular_songs, db.plays_by_user_simple_filtered_t),
+        "Create plays_by_user_simple_filtered collection for train set")
 
     invoke_measurable_task(
-        lambda: create_plays_by_user_binary(db.plays_by_user_v, most_popular_songs, db.plays_by_user_filtered_v),
-        "Create plays_by_user_filtered collection for validation set")
+        lambda: create_plays_by_user_binary(db.plays_by_user_v, most_popular_songs, db.plays_by_user_simple_filtered_v),
+        "Create plays_by_user_simple_filtered collection for validation set")
