@@ -45,12 +45,12 @@ with MongoClient('localhost', MONGODB_PORT) as client:
     db = client.local
 
     plays_for_all_users = [1]
-    def load_plays_for_all_users(): plays_for_all_users[0] = list(db.plays_by_user_simple_t.find())
+    def load_plays_for_all_users(): plays_for_all_users[0] = list(db.plays_by_user_filtered_t.find())
     invoke_measurable_task(load_plays_for_all_users, 'Load plays for all users')
     plays_for_all_users = plays_for_all_users[0]
 
     plays_for_validated_users = [1]
-    def load_plays_for_all_users(): plays_for_validated_users[0] = list(db.plays_by_user_simple_v.find().limit(NUMBER_OF_USERS))
+    def load_plays_for_all_users(): plays_for_validated_users[0] = list(db.plays_by_user_filtered_v.find().limit(NUMBER_OF_USERS))
     invoke_measurable_task(load_plays_for_all_users, 'Load plays for validated users')
     plays_for_validated_users = plays_for_validated_users[0]
 
