@@ -1,6 +1,6 @@
 from utils.measurements import invoke_measurable_task
 import os
-
+import shutil
 
 def import_triplets_to_mongo_db():
     os.system('python import_triplets_to_mongo_db.py')
@@ -20,6 +20,21 @@ def plays_by_user_binary():
 
 def plays_by_user_filtered():
     os.system('python create_plays_by_user_filtered.py')
+
+
+def delete_map_reduce_contetn():
+    folder = './map_reduce/'
+    for the_file in os.listdir(folder):
+        file_path = os.path.join(folder, the_file)
+        try:
+            if os.path.isdir(file_path):
+                shutil.rmtree(file_path)
+        except Exception, e:
+            print e
+    try:
+        os.remove('./map_reduce/created_collections.txt')
+    except OSError:
+        pass
 
 print 'INITIALIZING DATABASE'
 invoke_measurable_task(
