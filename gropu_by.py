@@ -12,7 +12,7 @@ def one_by_one(most_popular, plays_by_user_binary_t):
         fixed_song_index = '$value.' + song_index
 
         songs_group = plays_by_user_binary_t.aggregate([
-            {'$group': {'_id': fixed_song_index, 'res': {'$addToSet': fixed_song_index}}}
+            {'$group': {'_id': fixed_song_index}}
         ])
 
 
@@ -31,13 +31,14 @@ def pairs(most_popular, plays_by_user_binary_t):
                     {'$group': {'_id': fixed_second_song_index}}
                 ])
 
-def all_at_once(most_popular, plays_by_user_binary_t):
-    pipeline = [20]
 
-    for num in range(0, 20):
+def all_at_once(most_popular, plays_by_user_binary_t):
+    pipeline = [NUMBER_OF_SONGS_AT_ONE]
+
+    for num in range(0, NUMBER_OF_SONGS_AT_ONE):
         song_index = str(int(most_popular[num]['_id']))
         fixed_song_index = '$value.' + song_index
-        pipeline[0] = ({'$group': {'_id': fixed_song_index, 'res': {'$addToSet': fixed_song_index}}})
+        pipeline[0] = ({'$group': {'_id': fixed_song_index}})
 
     print 'Query created'
     songs_group = plays_by_user_binary_t.aggregate(pipeline)
@@ -56,7 +57,7 @@ with MongoClient('localhost', MONGODB_PORT) as client:
 
     invoke_measurable_task(load_most_popular_songs, 'Load %d most popular songs' % NUMBER_OF_MOST_POPULAR_SONGS)
     most_popular_songs = most_popular_songs[0]
-    print '100 most popular songs selected\n'
+    print NUMBER_OF_MOST_POPULAR_SONGS, ' most popular songs selected\n'
 
     invoke_measurable_task(
         lambda: one_by_one(most_popular_songs, db.plays_by_user_binary_t),
@@ -68,7 +69,7 @@ with MongoClient('localhost', MONGODB_PORT) as client:
 
     invoke_measurable_task(load_most_popular_songs, 'Load %d most popular songs' % NUMBER_OF_SONGS_AT_ONE)
     most_popular_songs = most_popular_songs[0]
-    print '20 most popular songs selected\n'
+    print NUMBER_OF_SONGS_AT_ONE, 'most popular songs selected\n'
 
     invoke_measurable_task(
         lambda: all_at_once(most_popular_songs, db.plays_by_user_binary_t),
