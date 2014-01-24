@@ -3,7 +3,7 @@ from utils.measurements import invoke_measurable_task
 
 MONGODB_PORT = 27017
 KNN_K = 50
-NUMBER_OF_USERS = 1000
+NUMBER_OF_USERS = 1
 
 
 class JaccardBasedKnn(object):
@@ -76,6 +76,12 @@ class LshOptimizedJaccardBasedKnn(object):
             print 'Looking for knn for %s. user' % current_user_number
             scores.append({'user_id': user_plays['_id'], 'scores': self.find_for_user(user_plays)})
             current_user_number += 1
+
+        with open('results.txt', 'w') as file:
+            file.write(str(scores[0]['user_id']))
+
+            for score in scores[0]['scores']:
+                file.write(' ' + str(score['user_id']))
 
         return scores
 
