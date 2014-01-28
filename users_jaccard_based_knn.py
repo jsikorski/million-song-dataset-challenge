@@ -4,16 +4,17 @@ from utils.measurements import invoke_measurable_task
 from collections import OrderedDict
 
 MONGODB_PORT = 27017
-KNN_K = 50
+KNN_K = 250
 NUMBER_OF_USERS = 110000
 MIN_SIMILARITY = 0.15
 MAX_SIZE_OF_BUCKET = 50000
 
 
 class LshOptimizedJaccardBasedKnn(object):
-    def __init__(self, buckets, k):
+    def __init__(self, buckets, k, min_similarity):
         self.buckets = buckets
         self.k = k
+        self.min_similarity = min_similarity
 
     def compute_jaccard_index(self, set_1, set_2):
         n = len(set_1.intersection(set_2))
@@ -40,7 +41,8 @@ class LshOptimizedJaccardBasedKnn(object):
 
         for other_user_plays in lsh_bucket:
             jaccard_index = self.compute_jaccard_index(set(user_plays['value']), set(other_user_plays['value']))
-            heappush(scores, (1 - jaccard_index, {'user_id': other_user_plays['_id'], 'score': jaccard_index, 'songs': other_user_plays['value']}))
+            if jaccard_index >= self.min_similarity:
+                heappush(scores, (1 - jaccard_index, {'user_id': other_user_plays['_id'], 'score': jaccard_index, 'songs': other_user_plays['value']}))
 
         return nsmallest(self.k, scores)
 
@@ -73,7 +75,7 @@ with MongoClient('localhost', MONGODB_PORT) as client:
 
     scores = [1]
     def find_knn_scores():
-        knn = LshOptimizedJaccardBasedKnn(buckets, KNN_K)
+        knn = LshOptimizedJaccardBasedKnn(buckets, KNN_K, MIN_SIMILARITY)
         scores[0] = knn.find_for_users(plays_for_validated_users)
 
     invoke_measurable_task(find_knn_scores, 'Find knn for %d users' % NUMBER_OF_USERS)
@@ -85,9 +87,8 @@ with MongoClient('localhost', MONGODB_PORT) as client:
 
             songs = OrderedDict()
             for scoreInt in score['scores']:
-                if scoreInt[1]['score'] >= MIN_SIMILARITY:
-                    for song_id in scoreInt[1]['songs']:
-                        songs[song_id] = True
+                for song_id in scoreInt[1]['songs']:
+                    songs[song_id] = True
 
             for song_id in songs.iterkeys():
                 file.write(str(' ' + str(song_id)))
