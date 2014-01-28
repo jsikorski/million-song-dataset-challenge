@@ -38,7 +38,7 @@ class JaccardBasedKnn(object):
             scores.append({'user_id': user_play['_id'], 'scores': self.find_for_user(set(user_play['value']))})
             current_user_number += 1
 
-        with open('results.txt', 'w') as file:
+        with open('../results.txt', 'w') as file:
             file.write(str(scores[0]['user_id']))
 
             for score in scores[0]['scores']:

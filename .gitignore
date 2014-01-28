@@ -43,3 +43,5 @@ nosetests.xml
 resources/private/*
 db/*/*
 map_reduce/created_collections.txt
+
+*results.txt

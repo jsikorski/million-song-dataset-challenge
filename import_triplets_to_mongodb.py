@@ -3,11 +3,11 @@ from utils.database_inserter import insert_batch
 from utils.measurements import invoke_measurable_task
 
 MONGODB_PORT = 27017
-BATCH_SIZE = 2500
-KAGGLE_USERS_MAPPING_FILE_PATH = 'resources/private/kaggle_users.txt'
-KAGGLE_SONGS_MAPPING_FILE_PATH = 'resources/private/kaggle_songs.txt'
+BATCH_SIZE = 1500
+KAGGLE_USERS_MAPPING_FILE_PATH = 'resources/private/inclass_kaggle_users.txt'
+KAGGLE_SONGS_MAPPING_FILE_PATH = 'resources/private/inclass_kaggle_songs.txt'
 TRAIN_TRIPLETS_FILE_PATH = 'resources/private/train_triplets.txt'
-TEST_TRIPLETS_FILE_PATH = 'resources/private/kaggle_visible_evaluation_triplets.txt'
+TEST_TRIPLETS_FILE_PATH = 'resources/private/inclass_kaggle_visible_evaluation_triplets.txt'
 
 users_map = {}
 songs_map = {}
