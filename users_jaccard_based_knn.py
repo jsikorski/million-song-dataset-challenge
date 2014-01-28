@@ -6,7 +6,8 @@ from collections import OrderedDict
 MONGODB_PORT = 27017
 KNN_K = 50
 NUMBER_OF_USERS = 110000
-MIN_SIMILARITY = 0.25
+MIN_SIMILARITY = 0.15
+MAX_SIZE_OF_BUCKET = 50000
 
 
 class LshOptimizedJaccardBasedKnn(object):
@@ -25,16 +26,17 @@ class LshOptimizedJaccardBasedKnn(object):
         scores = []
 
         song_ids = user_plays['value']
-        lsh_bucket1_key = song_ids[0]
-        lsh_bucket = list(self.buckets[lsh_bucket1_key])
+        lsh_bucket = []
 
-        if len(song_ids) > 1:
-            lsh_bucket2_key = user_plays['value'][1]
-            lsh_bucket += list(self.buckets[lsh_bucket2_key])
+        for i in range(1, len(song_ids)):
+            if len(lsh_bucket) > MAX_SIZE_OF_BUCKET:
+                break
 
-        if len(song_ids) > 2:
-            lsh_bucket3_key = user_plays['value'][2]
-            lsh_bucket += list(self.buckets[lsh_bucket3_key])
+            lsh_bucket_key = song_ids[i]
+            if lsh_bucket_key in self.buckets:
+                candidate_bucket = self.buckets[lsh_bucket_key]
+                if len(candidate_bucket) <= MAX_SIZE_OF_BUCKET - len(lsh_bucket):
+                    lsh_bucket += list(self.buckets[lsh_bucket_key])
 
         for other_user_plays in lsh_bucket:
             jaccard_index = self.compute_jaccard_index(set(user_plays['value']), set(other_user_plays['value']))
@@ -65,7 +67,7 @@ with MongoClient('localhost', MONGODB_PORT) as client:
 
     plays_for_validated_users = [1]
     def load_plays_for_all_users(): plays_for_validated_users[0] = list(
-        db.plays_by_user_filtered_simple_v.find().limit(NUMBER_OF_USERS))
+        db.plays_by_user_simple_v.find().limit(NUMBER_OF_USERS))
     invoke_measurable_task(load_plays_for_all_users, 'Load plays for validated users')
     plays_for_validated_users = plays_for_validated_users[0]
 
@@ -77,13 +79,13 @@ with MongoClient('localhost', MONGODB_PORT) as client:
     invoke_measurable_task(find_knn_scores, 'Find knn for %d users' % NUMBER_OF_USERS)
     scores = scores[0]
 
-    with open('users_knn_results.txt', 'w') as file:
+    with open('users_knn_%s_results.txt' % KNN_K, 'w') as file:
         for score in scores:
             file.write(str(int(score['user_id'])))
 
             songs = OrderedDict()
             for scoreInt in score['scores']:
-                if scoreInt[1]['score'] >= 0.25:
+                if scoreInt[1]['score'] >= MIN_SIMILARITY:
                     for song_id in scoreInt[1]['songs']:
                         songs[song_id] = True
 
