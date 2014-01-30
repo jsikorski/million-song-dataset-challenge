@@ -120,13 +120,3 @@ def find_knn_scores():
     knn = LshOptimizedJaccardBasedKnn(buckets, KNN_K, MIN_SIMILARITY)
     knn.find_for_users(plays_for_validated_users)
 invoke_measurable_task(find_knn_scores, 'Find knn for %d users' % NUMBER_OF_USERS)
-
-def find_knn_scores():
-    knn = LshOptimizedJaccardBasedKnn(buckets, KNN_K, MIN_SIMILARITY)
-    knn.find_for_users(plays_for_validated_users)
-invoke_measurable_task(find_knn_scores, 'Find knn for %d users' % NUMBER_OF_USERS)
-
-def find_knn_scores():
-    knn = LshOptimizedJaccardBasedKnn(buckets, KNN_K, MIN_SIMILARITY)
-    knn.find_for_users(plays_for_validated_users)
-invoke_measurable_task(find_knn_scores, 'Find knn for %d users' % NUMBER_OF_USERS)
